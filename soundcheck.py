@@ -10,15 +10,48 @@ class Soundcheck:
         self.cnt = 0
         self.cheatcnt = 0
 
-    def soundanalysis(self, freq, signal_f, makefreq):
+    def soundanalysis(self, freq, signal_f, makefreq, makedb):
+        flag = -1
+        dbsum = 0
+        datacnt = 0
+        dbmeanarray = []
         for i in range(len(freq)) :
-            if (20*np.log10(np.abs(signal_f[i]))) >= 100 :
-                for j in range(len(makefreq)) : 
-                    if freq[i]  <= makefreq[j] * 1.0005 and freq[i] >= makefreq[j] * 0.0095:
-                        self.cnt+=1
-                        break
+            if (20*np.log10(np.abs(signal_f[i]))) >= 70 :
+                for j in range(self.cnt, len(makefreq)) : 
+
+                    print(freq[i], makefreq[j], flag, self.cnt)
+                    if freq[i]  <= makefreq[j] * 1.00005 and freq[i] >= makefreq[j] * 0.99995  :
+                        flag = j
+                        dbsum = dbsum + 20*np.log10(np.abs(signal_f[i]))
+                        datacnt = datacnt + 1
+                        print(freq[i], makefreq[j])
+                        os.system("Pause")
+                    else :
+                        if flag != -1 :
+                            self.cnt+=1   
+                            if datacnt != 0 :
+                                dbmeanarray.append(dbsum/datacnt)
+                            flag = -1
+                            datacnt = 0
+                            dbsum = 0
+                            os.system("Pause")
+                            
+
         if len(makefreq) == self.cnt :
-            self.cheatcnt+=1 
+            flagt = 0
+            for i in range(len(makefreq)) :
+                for j in range(i+1 ,len(makefreq)) :
+                    if makefreq[i] <= makefreq[j] and dbmeanarray[i] <= dbmeanarray[j] :
+                        continue
+                    elif makefreq[i] >= makefreq[j] and dbmeanarray[i] >=dbmeanarray[j] :
+                        continue
+                    else :
+                        flagt = 1
+                        break
+                if flagt == 1 :
+                    break
+            if flagt == 0 :
+                self.cheatcnt+=1 
     
     def cntzero(self):
         self.cnt = 0
